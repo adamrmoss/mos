@@ -16,7 +16,8 @@ program
   .description 'Build Mos'
   .action (env, options)->
     console.log 'Building Mos...'
-    executeCommand 'nasm -felf32 source/kernel.asm -o build/kernel.elf'
+    #executeCommand 'nasm -f elf32 source/kernel.asm -o build/kernel.o'
+    executeCommand 'nasm -f bin source/kernel.asm -o build/kernel.o'
 
 program
   .command 'boot'
@@ -44,7 +45,7 @@ program
   .description 'Copy Mos to the mounted Floppy Disk'
   .action (env, options)->
     console.log 'Deploying Mos...'
-    executeCommand 'cp build/kernel.elf /Volumes/MOS/mos'
+    executeCommand 'cp build/kernel.o /Volumes/MOS/mos'
 
 program
   .parse process.argv
