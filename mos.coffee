@@ -16,14 +16,7 @@ program
   .description 'Build Mos'
   .action (env, options)->
     console.log 'Building Mos...'
-    executeCommand 'nasm -f elf32 source/kernel.asm -o build/kernel.elf'
-    console.log 'Linking Mos...'
-    executeCommand 'gcc -T -Xlinker source/kernel.link ' +
-                   '-ffreestanding ' +
-                   '-fno-builtin -nostdlib ' +
-                   '-nostartfiles -s build/kernel.elf ' +
-                   '-o build/kernel.elf'
-    #executeCommand 'ld -T source/kernel.ld -o build/kernel.o build/kernel.elf'
+    executeCommand 'nasm -f bin source/kernel.asm -o build/kernel'
 
 program
   .command 'boot'
@@ -51,7 +44,7 @@ program
   .description 'Copy Mos to the mounted Floppy Disk'
   .action (env, options)->
     console.log 'Deploying Mos...'
-    executeCommand 'cp build/kernel.o /Volumes/MOS/mos'
+    executeCommand 'cp build/kernel /Volumes/MOS/mos'
 
 program
   .parse process.argv

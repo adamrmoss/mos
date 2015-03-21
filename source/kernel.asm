@@ -1,35 +1,27 @@
 bits 32
-align 4
 
-extern textEnd
-extern dataEnd
-extern bssEnd
-
-section .text
-global start
-global _start
-entry:
-    jmp start
-align 4
-multiboot:
-    MBALIGN     equ  1<<0                   ; align loaded modules on page boundaries
-    MEMINFO     equ  1<<1                   ; provide memory map
-    FLAGS       equ  MBALIGN | MEMINFO      ; this is the Multiboot 'flag' field
-    MAGIC       equ  0x1BADB002             ; 'magic number' lets bootloader find the header
-    CHECKSUM    equ -(MAGIC + FLAGS)        ; checksum of above, to prove we are multiboot
-  .header:
+org 0x00100000
+code:
+  .multiboot:
+    MBALIGN      equ  1<<0
+    MEMINFO      equ  1<<1
+    AOUT_KLUDGE  equ  1<<16
+    
+    FLAGS        equ  MBALIGN | MEMINFO | AOUT_KLUDGE
+    MAGIC        equ  0x1badb002
+    CHECKSUM     equ -(MAGIC + FLAGS)
+    align 4
     dd MAGIC
     dd FLAGS
     dd CHECKSUM
-    dd multiboot.header
-    dd entry
-    dd dataEnd
-    dd bssEnd
-    dd entry
-start:
-_start:
+    dd code.multiboot
+    dd code
+    dd data.end
+    dd stack.end
+    dd code.entry
+  .entry:
     mov edi, 0xb8000
-    mov esi, greeting
+    mov esi, data.greeting
     mov ah, 0x0f
   .charLoop:
     lodsb
@@ -38,13 +30,14 @@ _start:
     jnz .charLoop
     hlt
     jmp short $
+    align 4
 
-section .data
-align 4
-greeting:
+data:
+  .greeting:
     db "Welcome to mos", 0
+  .end
 
-section .bss
-align 4
-    common stack 0x1000
-    resd 0x1000
+    align 4
+stack:
+    times 0x1000 dd 0
+  .end
