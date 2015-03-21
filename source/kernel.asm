@@ -24,7 +24,7 @@ code:
     dd code.entry
   .entry:
     mov ebx, 0xb8000
-    xor eax, eax
+    mov eax, 0x1f001f00
   .clsLoop:
     mov ecx, TEXT_COLS * TEXT_ROWS / 2
     mov dword [ebx], eax
@@ -34,7 +34,7 @@ code:
   .showGreeting:
     mov edi, 0xb8000
     mov esi, data.greeting
-    mov ah, 0x0f
+    mov ah, 0x1f
   .charLoop:
     lodsb
     stosw
