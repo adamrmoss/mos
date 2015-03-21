@@ -16,8 +16,14 @@ program
   .description 'Build Mos'
   .action (env, options)->
     console.log 'Building Mos...'
-    #executeCommand 'nasm -f elf32 source/kernel.asm -o build/kernel.o'
-    executeCommand 'nasm -f bin source/kernel.asm -o build/kernel.o'
+    executeCommand 'nasm -f elf32 source/kernel.asm -o build/kernel.elf'
+    console.log 'Linking Mos...'
+    executeCommand 'gcc -T -Xlinker source/kernel.link ' +
+                   '-ffreestanding ' +
+                   '-fno-builtin -nostdlib ' +
+                   '-nostartfiles -s build/kernel.elf ' +
+                   '-o build/kernel.elf'
+    #executeCommand 'ld -T source/kernel.ld -o build/kernel.o build/kernel.elf'
 
 program
   .command 'boot'
