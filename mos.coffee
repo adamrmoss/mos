@@ -7,8 +7,16 @@ executeCommand = (commandLine)->
   child_process.exec commandLine, {}, (error)->
     if error
       console.log 'ERROR: ' + error
+      process.exit
     else
       console.log 'Done'
+
+program
+  .command 'build'
+  .description 'Build Mos'
+  .action (env, options)->
+    console.log 'Building Mos...'
+    executeCommand 'nasm -felf32 source/kernel.asm -o build/kernel.elf'
 
 program
   .command 'boot'
@@ -30,6 +38,13 @@ program
   .action (env, options)->
     console.log 'Unmounting Mos Floppy Disk...'
     executeCommand 'hdiutil detach /Volumes/MOS'
+
+program
+  .command 'deploy'
+  .description 'Copy Mos to the mounted Floppy Disk'
+  .action (env, options)->
+    console.log 'Deploying Mos...'
+    executeCommand 'cp build/kernel.elf /Volumes/MOS/mos'
 
 program
   .parse process.argv
