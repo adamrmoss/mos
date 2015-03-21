@@ -1,0 +1,13 @@
+{
+  "name": "mos",
+  "description": "The Mos Operating System",
+  "version": "0.0.1",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adamrmoss/mos"
+  },
+  "dependencies": {
+     "commander": "^2.7.1"
+  }
+}
