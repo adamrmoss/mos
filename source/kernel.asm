@@ -44,9 +44,12 @@ code:
     dd code.entry
 
   .entry:
-  .cls:
-    mov esp, stack.end
+    mov esp, stack.end - 4
+
+ .cls:
     mov ebx, VIDEO_BASE
+    push ebx
+    pop ebx
     mov eax, THEME << 24 | THEME << 8
   .clsLoop:
     mov ecx, TEXT_COLS * TEXT_ROWS / 2
@@ -64,6 +67,7 @@ code:
     stosw
     or al, al
     jnz .charLoop
+
     hlt
     jmp short $
     align 4
@@ -77,5 +81,5 @@ data:
  .end:
 
 stack:
-    times 0x1000 dd 0
+    times 0x1000 dd 0x00000000
   .end:
