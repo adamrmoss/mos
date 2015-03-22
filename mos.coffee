@@ -12,18 +12,18 @@ executeCommand = (commandLine)->
       console.log 'Done'
 
 program
-  .command 'build'
-  .description 'Build Mos'
-  .action (env, options)->
-    console.log 'Building Mos...'
-    executeCommand 'nasm -f bin source/kernel.asm -o build/kernel'
-
-program
   .command 'boot'
   .description 'Boot up Mos'
   .action (env, options)->
     console.log 'Booting Mos...'
     executeCommand 'qemu-system-x86_64 -m 16 -fda disks/mos.img -boot a'
+
+program
+  .command 'dos'
+  .description 'Boot up DOS 3.3'
+  .action (env, options)->
+    console.log 'Booting DOS 3.3...'
+    executeCommand 'qemu-system-x86_64 -m 1 -fda disks/dos3.3.img -boot a'
 
 program
   .command 'mount'
@@ -38,6 +38,13 @@ program
   .action (env, options)->
     console.log 'Unmounting Mos Floppy Disk...'
     executeCommand 'hdiutil detach /Volumes/MOS'
+
+program
+  .command 'build'
+  .description 'Build Mos'
+  .action (env, options)->
+    console.log 'Building Mos...'
+    executeCommand 'nasm -f bin source/kernel.asm -o build/kernel'
 
 program
   .command 'deploy'
