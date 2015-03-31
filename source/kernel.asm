@@ -24,6 +24,10 @@ bits 32
 
 org 0x00100000
 code:
+  .entry:
+    mov esp, stack.end
+    jmp .cls
+
   .multiboot:
     MBALIGN      equ  1<<0
     MEMINFO      equ  1<<1
@@ -43,13 +47,8 @@ code:
     dd stack.end
     dd code.entry
 
-  .entry:
-    mov esp, stack.end - 4
-
  .cls:
     mov ebx, VIDEO_BASE
-    push ebx
-    pop ebx
     mov eax, THEME << 24 | THEME << 8
   .clsLoop:
     mov ecx, TEXT_COLS * TEXT_ROWS / 2
@@ -58,7 +57,8 @@ code:
     loop .clsLoop
 
   .showGreeting:
-    GREETING_OFFSET equ TEXT_ROWS * TEXT_COLS - (data.greetingEnd - data.greeting - 1)
+;    GREETING_OFFSET equ TEXT_ROWS * TEXT_COLS - (((data.greetingEnd - data.greeting) / 2) * 2)
+    GREETING_OFFSET equ TEXT_ROWS * TEXT_COLS
     mov edi, VIDEO_BASE + GREETING_OFFSET
     mov esi, data.greeting
     mov ah, THEME
@@ -75,7 +75,7 @@ code:
 
 data:
   .greeting:
-    db "welcome to mos", 0
+    db "w welcome to mos", 0
   .greetingEnd:
     align 4
  .end:
