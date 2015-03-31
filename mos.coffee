@@ -16,21 +16,21 @@ program
   .description 'Boot up Mos'
   .action (env, options)->
     console.log 'Booting Mos...'
-    executeCommand 'qemu-system-x86_64 -m 16 -fda disks/mos.img -boot a'
+    executeCommand 'qemu-system-i386 -m 1 -fda disks/mos16.img -boot a'
 
 program
   .command 'dos'
   .description 'Boot up DOS 3.3'
   .action (env, options)->
     console.log 'Booting DOS 3.3...'
-    executeCommand 'qemu-system-x86_64 -m 1 -fda disks/dos3.3.img -boot a'
+    executeCommand 'qemu-system-i386 -m 1 -fda disks/dos3.3.img -boot a'
 
 program
   .command 'mount'
   .description 'Mount the Floppy Disk Image to OSX'
   .action (env, options)->
     console.log 'Mounting Mos Floppy Disk...'
-    executeCommand 'hdiutil attach disks/mos.img'
+    executeCommand 'hdiutil attach disks/mos16.img'
 
 program
   .command 'umount'
@@ -44,7 +44,7 @@ program
   .description 'Build Mos'
   .action (env, options)->
     console.log 'Building Mos...'
-    executeCommand 'nasm -f bin source/kernel.asm -o build/kernel'
+    executeCommand 'nasm -f bin source/kernel16.asm -o build/kernel16'
 
 program
   .command 'deploy'

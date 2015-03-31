@@ -1,0 +1,19 @@
+TEXT_COLS  equ 80
+TEXT_ROWS  equ 25
+
+BLACK      equ 0x0
+DBLUE      equ 0x1
+DGREEN     equ 0x2
+DCYAN      equ 0x3
+DRED       equ 0x4
+DMAGENTA   equ 0x5
+BROWN      equ 0x6
+LGREY      equ 0x7
+DGREY      equ 0x8
+LBLUE      equ 0x9
+LGREEN     equ 0xa
+LCYAN      equ 0xb
+LRED       equ 0xc
+LMAGENTA   equ 0xd
+YELLOW     equ 0xe
+WHITE      equ 0xf
