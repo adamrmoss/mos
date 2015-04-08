@@ -6,13 +6,26 @@ bits 16
     THEME equ DBLUE << 4 | LGREEN
 
 org BOOT
-    xor ax, ax
-    mov ds, ax
-
+    ; Setup Stack
     mov ax, STACK >> 4
     mov ss, ax
-    mov sp, 0xffff  
+    mov sp, 0xffff
+
+    ; Setup Video
+    mov ax, VIDEO >> 4
+    mov ds, ax
+
+cls:
+    mov ax, THEME << 8
+    mov cx, TEXT_COLS * TEXT_ROWS / 2
+    xor bx, bx
+  .clsLoop:
+    mov [ds:bx], ax
+    inc bx
+    inc bx
+    loop .clsLoop
  
+    ; Spin
     jmp short $
 
 padding:
