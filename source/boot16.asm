@@ -15,11 +15,18 @@ org BOOT
     mov ax, TEXT >> 4
     mov es, ax
  
+    call hideCursor
     mov ah, THEME
     call cls
 
     ; Spin
     jmp short $
+
+hideCursor:
+    mov ah, 0x01
+    mov cx, 0x2000
+    int 0x10
+    ret
 
 cls:
     xor al, al
