@@ -14,9 +14,15 @@ org BOOT
     ; Setup Video
     mov ax, TEXT >> 4
     mov es, ax
+ 
+    mov ah, THEME
+    call cls
+
+    ; Spin
+    jmp short $
 
 cls:
-    mov ax, THEME << 8
+    xor al, al
     mov cx, TEXT_COLS * TEXT_ROWS
     xor bx, bx
   .clsLoop:
@@ -24,9 +30,7 @@ cls:
     inc bx
     inc bx
     loop .clsLoop
- 
-    ; Spin
-    jmp short $
+    ret
 
 padding:
     times 510-($-$$) db 0
