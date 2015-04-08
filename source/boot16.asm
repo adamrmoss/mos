@@ -12,15 +12,15 @@ org BOOT
     mov sp, 0xffff
 
     ; Setup Video
-    mov ax, VIDEO >> 4
-    mov ds, ax
+    mov ax, TEXT >> 4
+    mov es, ax
 
 cls:
     mov ax, THEME << 8
-    mov cx, TEXT_COLS * TEXT_ROWS / 2
+    mov cx, TEXT_COLS * TEXT_ROWS
     xor bx, bx
   .clsLoop:
-    mov [ds:bx], ax
+    mov [es:bx], ax
     inc bx
     inc bx
     loop .clsLoop
