@@ -4,12 +4,8 @@ child_process = require 'child_process'
 program = require 'commander'
 
 executeCommand = (commandLine)->
-  child_process.exec commandLine, {}, (error)->
-    if error
-      console.log 'ERROR: ' + error
-      process.exit
-    else
-      console.log 'Done'
+  console.log('Executing: ' + commandLine)
+  child_process.execSync commandLine
 
 program
   .command 'boot'
@@ -37,21 +33,22 @@ program
   .description 'Unmount the Floppy Disk Image from OSX'
   .action (env, options)->
     console.log 'Unmounting Mos Floppy Disk...'
-    executeCommand 'hdiutil detach /Volumes/MOS'
+    executeCommand 'hdiutil detach /Volumes/mos16'
 
 program
   .command 'build'
   .description 'Build Mos'
   .action (env, options)->
     console.log 'Building Mos...'
-    executeCommand 'nasm -f bin source/kernel16.asm -o build/kernel16'
+    executeCommand 'nasm -f bin source/boot16.asm -o build/boot16'
+    executeCommand 'dd if=build/boot16 of=disks/mos16.img'
 
 program
   .command 'deploy'
   .description 'Copy Mos to the mounted Floppy Disk'
   .action (env, options)->
     console.log 'Deploying Mos...'
-    executeCommand 'cp build/kernel /Volumes/MOS/mos'
+    executeCommand 'cp build/kernel16 /Volumes/MOS/mos16'
 
 program
   .parse process.argv

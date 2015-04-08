@@ -1,7 +1,7 @@
 bits 16
 
-%include "memory.asm"
-%include "text.asm"
+%include "source/memory.asm"
+%include "source/text.asm"
 
     THEME equ DBLUE << 4 | LGREEN
 
