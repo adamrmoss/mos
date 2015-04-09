@@ -3,7 +3,7 @@ bits 16
 %include "source/memory.asm"
 %include "source/text.asm"
 
-    THEME equ DBLUE << 4 | LGREEN
+    THEME equ DBLUE << 4 | LGREY
 
 org BOOT
     ; Setup Stack
@@ -29,6 +29,7 @@ hideCursor:
     ret
 
 cls:
+    ; ah = Colors Byte
     xor al, al
     mov cx, TEXT_COLS * TEXT_ROWS
     xor bx, bx
