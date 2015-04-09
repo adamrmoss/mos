@@ -6,6 +6,12 @@ bits 16
     THEME equ DBLUE << 4 | LGREY
 
 org BOOT
+    jmp short start
+
+bootRecord:
+    times 62-($-$$) db 0
+
+start:
     ; Setup Stack
     mov ax, STACK >> 4
     mov ss, ax

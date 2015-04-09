@@ -40,7 +40,9 @@ program
   .description 'Build Mos'
   .action (env, options)->
     console.log 'Building Mos...'
+    executeCommand 'dd if=disks/mos16.img of=build/boot-record bs=1 skip=3 count=33'
     executeCommand 'nasm -f bin source/boot16.asm -o build/boot16'
+    executeCommand 'dd if=build/boot-record of=build/boot16 bs=1 count=33 seek=3'
     executeCommand 'dd if=build/boot16 of=disks/mos16.img conv=notrunc'
 
 program
