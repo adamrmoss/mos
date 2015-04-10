@@ -3,7 +3,7 @@ bits 16
 %include "source/memory.asm"
 %include "source/text.asm"
 
-    THEME equ DBLUE << 4 | LGREY
+    THEME equ DBLUE << 4 | WHITE
 
 org BOOT
     jmp short start
