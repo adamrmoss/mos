@@ -39,13 +39,13 @@ program
   .command 'build'
   .description 'Build Mos'
   .action (env, options)->
-    console.log 'Extracting boot record from disk image...'
-    executeCommand 'dd if=disks/mos16.img of=build/boot-record conv=notrunc bs=1 skip=3 count=59'
-    console.log '\nBuilding boot code...'
+    console.log 'Extracting BIOS Parameter Block from disk image...'
+    executeCommand 'dd if=disks/mos16.img of=build/bpb conv=notrunc bs=1 skip=3 count=59'
+    console.log '\nBuilding boot sector...'
     executeCommand 'nasm -f bin source/boot16.asm -o build/boot16'
-    console.log '\nWriting boot record to boot code...'
-    executeCommand 'dd if=build/boot-record of=build/boot16 conv=notrunc bs=1 count=59 seek=3'
-    console.log '\nWriting boot code to disk image...'
+    console.log '\nWriting BIOS Parameter Block to boot sector...'
+    executeCommand 'dd if=build/bpb of=build/boot16 conv=notrunc bs=1 count=59 seek=3'
+    console.log '\nWriting boot sector to disk image...'
     executeCommand 'dd if=build/boot16 of=disks/mos16.img conv=notrunc'
 
 program
