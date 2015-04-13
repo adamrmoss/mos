@@ -12,7 +12,7 @@ program
   .description 'Boot up Mos'
   .action (env, options)->
     console.log 'Booting Mos...'
-    executeCommand 'qemu-system-i386 -m 1 -fda disks/mos16.img -boot a'
+    executeCommand 'qemu-system-i386 -m 1 -fda disks/mos.img -boot a'
 
 program
   .command 'dos'
@@ -26,27 +26,27 @@ program
   .description 'Mount the Floppy Disk Image to OSX'
   .action (env, options)->
     console.log 'Mounting Mos Floppy Disk...'
-    executeCommand 'hdiutil attach disks/mos16.img'
+    executeCommand 'hdiutil attach disks/mos.img'
 
 program
   .command 'umount'
   .description 'Unmount the Floppy Disk Image from OSX'
   .action (env, options)->
     console.log 'Unmounting Mos Floppy Disk...'
-    executeCommand 'hdiutil detach /Volumes/mos16'
+    executeCommand 'hdiutil detach /Volumes/mos'
 
 program
   .command 'build'
   .description 'Build Mos'
   .action (env, options)->
     console.log 'Extracting BIOS Parameter Block from disk image...'
-    executeCommand 'dd if=disks/mos16.img of=build/bpb conv=notrunc bs=1 skip=3 count=59'
+    executeCommand 'dd if=disks/mos.img of=build/bpb conv=notrunc bs=1 skip=3 count=59'
     console.log '\nBuilding boot sector...'
-    executeCommand 'nasm -f bin source/boot16.asm -o build/boot16'
+    executeCommand 'nasm -f bin source/boot.asm -o build/boot'
     console.log '\nWriting BIOS Parameter Block to boot sector...'
-    executeCommand 'dd if=build/bpb of=build/boot16 conv=notrunc bs=1 count=59 seek=3'
+    executeCommand 'dd if=build/bpb of=build/boot conv=notrunc bs=1 count=59 seek=3'
     console.log '\nWriting boot sector to disk image...'
-    executeCommand 'dd if=build/boot16 of=disks/mos16.img conv=notrunc'
+    executeCommand 'dd if=build/boot of=disks/mos.img conv=notrunc'
 
 program
   .parse process.argv
