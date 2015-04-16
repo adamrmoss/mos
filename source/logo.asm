@@ -38,7 +38,9 @@ drawLogo:
     mov cx, LOGO_COLS_PER_BLOCK
   .charLoop:
     mov dx, 0x01
+    dec cl
     shl dx, cl
+    inc cl
     and dx, bx
     jz .afterPrint
     mov [es:di], ax
