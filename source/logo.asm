@@ -37,14 +37,11 @@ drawLogo:
     push cx
     mov cx, LOGO_COLS_PER_BLOCK
   .charLoop:
-    mov dx, 0x01
-    dec cl
-    shl dx, cl
-    inc cl
-    and dx, bx
+    test bh, 0x80
     jz .afterPrint
     mov [es:di], ax
   .afterPrint:
+    rol bx, 1
     times TEXT_CHARSIZE inc di
     loop .charLoop
     times (LOGO_COLS_PER_BLOCK / 8) inc si
