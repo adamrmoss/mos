@@ -21,7 +21,7 @@ program
   .description 'Boot up DOS 3.3'
   .action (env, options)->
     console.log 'Booting DOS 3.3...'
-    launchCommand 'qemu-system-i386 -m 1 -fda disks/dos3.3.img -fdb disks/mos.img -boot a'
+    launchCommand 'qemu-system-i386 -m 1 -fda disks/dos3.3.img -fdb disks/blank.img -boot a'
 
 program
   .command 'mount'
