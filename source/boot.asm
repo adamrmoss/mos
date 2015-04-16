@@ -2,6 +2,7 @@ bits 16
 
 %include "source/memory.h"
 %include "source/text.h"
+%include "source/logo.h"
 
 THEME equ DARK_BLUE << 4 | WHITE
 
@@ -68,6 +69,9 @@ start:
     call hideCursor
     mov ah, THEME
     call cls
+
+    mov ah, THEME
+    call drawLogo
 
     ; Spin
     jmp short $

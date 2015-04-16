@@ -1,14 +1,56 @@
 logo:
-    db 0x0f, 0x81, 0xe0, 0x00, 0x7e, 0x00, 0x07, 0xff, 0xc0
-
+    dw 0x0781, 0xe000, 0x0000, 0x3ffe
+    dw 0x0781, 0xe000, 0xfc00, 0xffff
+    dw 0x0781, 0xe003, 0xff00, 0xffff
+    dw 0x0fc3, 0xf007, 0xff81, 0xf003
+    dw 0x0fc3, 0xf00f, 0x87c1, 0xc000
+    dw 0x0fc3, 0xf01e, 0x01e1, 0xc000
+    dw 0x1fe7, 0xf83c, 0x00f1, 0xc000
+    dw 0x1fe7, 0xf838, 0x0071, 0xfc00
+    dw 0x1fe7, 0xf878, 0x0078, 0xfffe
+    dw 0x3cff, 0x3c78, 0x0078, 0xfffe
+    dw 0x3cff, 0x3c38, 0x0070, 0x007f
+    dw 0x3cff, 0x3c3c, 0x00f0, 0x0007
+    dw 0x787e, 0x1e1e, 0x01e0, 0x0007
+    dw 0x787e, 0x1e0f, 0x87c0, 0x0007
+    dw 0x787e, 0x1e07, 0xff81, 0x801f
+    dw 0xf03c, 0x0f03, 0xff01, 0xfffe
+    dw 0xf03c, 0x0f00, 0xfc01, 0xfffe
+    dw 0xf000, 0x0f00, 0x0000, 0xfff8
 
 drawLogo:
+    pusha
+
     ; ah = Colors Byte
-    xor al, al
-    mov cx, TEXT_COLS * TEXT_ROWS
-    xor bx, bx
-  .clsLoop:
-    mov [es:bx], ax
-    times TEXT_CHARSIZE inc bx
-    loop .clsLoop
+    ; al = solid rectangle
+    mov al, 0xdb
+ 
+    mov si, logo
+    mov di, ((LOGO_TOP_MARGIN * TEXT_COLS) + LOGO_LEFT_MARGIN) * TEXT_CHARSIZE
+
+    mov cx, LOGO_ROWS
+  .rowLoop:
+    push cx
+    mov cx, LOGO_COLS / LOGO_COLS_PER_BLOCK
+  .blockLoop:
+    mov bx, [si]
+    push cx
+    mov cx, LOGO_COLS_PER_BLOCK
+  .charLoop:
+    mov dx, 0x01
+    shl dx, cl
+    and dx, bx
+    jz .afterPrint
+    mov [es:di], ax
+  .afterPrint:
+    times TEXT_CHARSIZE inc di
+    loop .charLoop
+    times (LOGO_COLS_PER_BLOCK / 8) inc si
+    pop cx
+    loop .blockLoop
+    add di, (LOGO_RIGHT_MARGIN + LOGO_LEFT_MARGIN) * TEXT_CHARSIZE
+    pop cx
+    loop .rowLoop
+
+    popa
     ret

@@ -29,13 +29,6 @@ program
     executeCommand 'hdiutil attach disks/mos.img'
 
 program
-  .command 'umount'
-  .description 'Unmount the Floppy Disk Image from OSX'
-  .action (env, options)->
-    console.log 'Unmounting Mos Floppy Disk...'
-    executeCommand 'hdiutil detach /Volumes/mos'
-
-program
   .command 'build'
   .description 'Build Mos'
   .action (env, options)->

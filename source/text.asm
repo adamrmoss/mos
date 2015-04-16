@@ -7,10 +7,10 @@ hideCursor:
 cls:
     ; ah = Colors Byte
     xor al, al
-    mov cx, TEXT_COLS * TEXT_ROWS
     xor bx, bx
-  .clsLoop:
+    mov cx, TEXT_COLS * TEXT_ROWS
+  .charLoop:
     mov [es:bx], ax
     times TEXT_CHARSIZE inc bx
-    loop .clsLoop
+    loop .charLoop
     ret
