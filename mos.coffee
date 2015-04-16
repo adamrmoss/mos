@@ -3,23 +3,25 @@
 child_process = require 'child_process'
 program = require 'commander'
 
+launchCommand = (commandLine)->
+  child_process.exec(commandLine, {stdio: [null, null, null]})
+
 executeCommand = (commandLine)->
-  console.log('Executing: ' + commandLine)
-  child_process.execSync commandLine
+  child_process.execSync(commandLine, {stdio: [null, null, null]})
 
 program
   .command 'boot'
   .description 'Boot up Mos'
   .action (env, options)->
     console.log 'Booting Mos...'
-    executeCommand 'qemu-system-i386 -m 1 -fda disks/mos.img -boot a'
+    launchCommand 'qemu-system-i386 -m 1 -fda disks/mos.img -boot a'
 
 program
   .command 'dos'
   .description 'Boot up DOS 3.3'
   .action (env, options)->
     console.log 'Booting DOS 3.3...'
-    executeCommand 'qemu-system-i386 -m 1 -fda disks/dos3.3.img -boot a'
+    launchCommand 'qemu-system-i386 -m 1 -fda disks/dos3.3.img -fdb disks/mos.img -boot a'
 
 program
   .command 'mount'
@@ -32,13 +34,15 @@ program
   .command 'build'
   .description 'Build Mos'
   .action (env, options)->
+    console.log 'Starting with the blank disk image...'
+    executeCommand 'cp disks/blank.img disks/mos.img'
     console.log 'Extracting BIOS Parameter Block from disk image...'
     executeCommand 'dd if=disks/mos.img of=build/bpb conv=notrunc bs=1 skip=3 count=59'
-    console.log '\nBuilding boot sector...'
+    console.log 'Building boot sector...'
     executeCommand 'nasm -f bin source/boot.asm -o build/boot'
-    console.log '\nWriting BIOS Parameter Block to boot sector...'
+    console.log 'Writing BIOS Parameter Block to boot sector...'
     executeCommand 'dd if=build/bpb of=build/boot conv=notrunc bs=1 count=59 seek=3'
-    console.log '\nWriting boot sector to disk image...'
+    console.log 'Writing boot sector to disk image...'
     executeCommand 'dd if=build/boot of=disks/mos.img conv=notrunc'
 
 program
