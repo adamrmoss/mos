@@ -51,6 +51,8 @@ program
     executeCommand 'dd if=build/bpb of=build/boot conv=notrunc bs=1 count=59 seek=3'
     console.log 'Writing boot sector to disk image...'
     executeCommand 'dd if=build/boot of=disks/mos.img conv=notrunc'
+    console.log 'Building kernel...'
+    executeCommand 'nasm -f bin source/kernel.asm -o build/kernel'
 
 program
   .parse process.argv
