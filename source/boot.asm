@@ -3,11 +3,11 @@ bits 16
 %include "source/memory.h"
 %include "source/text.h"
 
-    THEME equ DBLUE << 4 | WHITE
+THEME equ DARK_BLUE << 4 | WHITE
 
 org BOOT
 boot:
-    jmp short start
+    jmp near start
     times 3 - ($ - boot) db 0
 
 ; We set the whole BPB block to 0s because we will splice in the actual info
@@ -52,6 +52,9 @@ bpb:
   .systemId:
     times 8 db 0
 
+%include "source/text.asm"
+%include "source/logo.asm"
+
 start:
     ; Setup Stack
     mov ax, STACK >> 4
@@ -69,26 +72,8 @@ start:
     ; Spin
     jmp short $
 
-hideCursor:
-    mov ah, 0x01
-    mov cx, 0x2000
-    int 0x10
-    ret
-
-cls:
-    ; ah = Colors Byte
-    xor al, al
-    mov cx, TEXT_COLS * TEXT_ROWS
-    xor bx, bx
-  .clsLoop:
-    mov [es:bx], ax
-    inc bx
-    inc bx
-    loop .clsLoop
-    ret
-
 padding:
-    times 510-($-$$) db 0
+    times 510 - ($ - $$) db 0
 
 signature:
     dw 0xaa55
