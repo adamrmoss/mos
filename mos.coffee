@@ -31,11 +31,11 @@ program
     executeCommand 'hdiutil attach disks/mos.img'
 
 program
-  .command 'blank'
-  .description 'Build blank disk image'
+  .command 'umount'
+  .description 'Unmount the Floppy Disk Image from OSX'
   .action (env, options)->
-    console.log 'Building blank disk image...'
-    executeCommand 'qemu-img create disks/blank.img 1440k'
+    console.log 'Unmounting Mos Floppy Disk...'
+    executeCommand 'hdiutil detach /Volumes/mos'
 
 program
   .command 'build'
