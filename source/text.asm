@@ -5,6 +5,7 @@ hideCursor:
     ret
 
 cls:
+    pusha
     ; ah = Colors Byte
     xor al, al
     xor bx, bx
@@ -13,4 +14,5 @@ cls:
     mov [es:bx], ax
     times TEXT_CHARSIZE inc bx
     loop .charLoop
+    popa
     ret
