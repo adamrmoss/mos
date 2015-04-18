@@ -56,6 +56,27 @@ bpb:
 %include "source/text.asm"
 %include "source/logo.asm"
 
+resetFloppy:
+    mov ah, 0
+    mov dl, 0
+    int 0x13
+    jc resetFloppy
+    ret
+
+readSectors:
+  .start
+    mov di, 0x0005
+  .sectorLoop
+    pusha
+
+
+loadRoot:
+    mov al, [bpb.fats]
+    mul [bpb.sectorsPerFat]
+    add ax, [bpb.reservedSectors]
+    mov bx, 0x8000
+    ret
+
 start:
     ; Setup Stack
     mov ax, STACK >> 4
