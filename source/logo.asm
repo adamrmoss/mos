@@ -24,6 +24,7 @@ drawLogo:
     ; ah = Colors Byte
     ; al = solid rectangle
     mov al, 0xdb
+    mov dx, ax
  
     mov si, logo
     mov di, ((LOGO_TOP_MARGIN * TEXT_COLS) + LOGO_LEFT_MARGIN) * TEXT_CHARSIZE
@@ -33,18 +34,17 @@ drawLogo:
     push cx
     mov cx, LOGO_COLS / LOGO_COLS_PER_BLOCK
   .blockLoop:
-    mov bx, [si]
+    lodsw
     push cx
     mov cx, LOGO_COLS_PER_BLOCK
   .charLoop:
-    test bh, 0x80
+    test ah, 0x80
     jz .afterPrint
-    mov [es:di], ax
+    mov [es:di], dx
   .afterPrint:
-    rol bx, 1
+    rol ax, 1
     times TEXT_CHARSIZE inc di
     loop .charLoop
-    times (LOGO_COLS_PER_BLOCK / 8) inc si
     pop cx
     loop .blockLoop
     add di, (LOGO_RIGHT_MARGIN + LOGO_LEFT_MARGIN) * TEXT_CHARSIZE
