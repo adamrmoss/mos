@@ -4,6 +4,18 @@ hideCursor:
     int 0x10
     ret
 
+setColors:
+    pusha
+    ; ah = Colors Byte
+    mov bx, 0x0001
+    mov cx, TEXT_COLS * TEXT_ROWS
+  .charLoop:
+    mov [es:bx], ah
+    times TEXT_CHARSIZE inc bx
+    loop .charLoop
+    popa
+    ret
+
 cls:
     pusha
     ; ah = Colors Byte

@@ -53,6 +53,12 @@ program
     executeCommand 'dd if=build/boot of=disks/mos.img conv=notrunc'
     console.log 'Building kernel...'
     executeCommand 'nasm -f bin source/kernel.asm -o build/kernel'
+    console.log 'Mounting Mos Floppy Disk...'
+    executeCommand 'hdiutil attach disks/mos.img'
+    console.log 'Copying kernel...'
+    executeCommand 'cp build/kernel /Volumes/mos/'
+    console.log 'Unmounting Mos Floppy Disk...'
+    executeCommand 'hdiutil detach /Volumes/mos'
 
 program
   .parse process.argv

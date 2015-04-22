@@ -2,7 +2,6 @@ bits 16
 
 %include "source/memory.h"
 %include "source/text.h"
-%include "source/logo.h"
 
 THEME equ DARK_BLUE << 4 | WHITE
 
@@ -24,7 +23,7 @@ bpb:
     dw 0
   .fats:
     db 0
-  .directoryEntries:
+  .rootEntries:
     dw 0
   .totalSectors:
     dw 0
@@ -34,7 +33,7 @@ bpb:
     dw 0
   .sectorsPerTrack:
     dw 0
-  .heads:
+  .headsPerCylinder:
     dw 0
   .hiddenSectors:
     dd 0
@@ -54,7 +53,6 @@ bpb:
     times 8 db 0
 
 %include "source/text.asm"
-%include "source/logo.asm"
 
 resetFloppy:
     mov ah, 0
@@ -67,9 +65,9 @@ readSectors:
     ; ax = Starting sector
     ; cx = Number of sectors to read
     ; es:bx => Buffer to read to
-  .start
+  .start:
     mov di, 0x0005
-  .sectorLoop
+  .sectorLoop:
     push ax
     push bx
     push cx
@@ -90,7 +88,7 @@ readSectors:
     pop ax
     jnz .sectorLoop                         ; attempt to read again
     int 0x18
-  .success
+  .success:
     pop cx
     pop bx
     pop ax
@@ -99,11 +97,16 @@ readSectors:
     loop .start                             ; read next sector
     ret
 
-loadRoot:
-    mov al, [bpb.fats]
-    mul [bpb.sectorsPerFat]
-    add ax, [bpb.reservedSectors]
-    mov bx, 0x8000
+print:
+    ; ds:si points to a 0-terminated string
+    mov ah, 0x0e 
+  .startLoop:
+    lodsb   
+    or  al, al  
+    jz  .done
+    int 0x10
+    jmp .startLoop
+  .done:
     ret
 
 convertChsToLba:
@@ -140,8 +143,8 @@ dataSector:
     dw 0x0000
 cluster:
     dw 0x0000
-imageName:
-    db "KERNEL  SYS"
+kernelFilename:
+    db "kernel     "
 
 start:
     ; Setup Stack
@@ -153,15 +156,76 @@ start:
     mov ax, TEXT >> 4
     mov es, ax
  
-    call hideCursor
+    ;call hideCursor
     mov ah, THEME
-    call cls
+    ;call cls
+    call setColors
 
-    mov ah, THEME
-    call drawLogo
+    mov si, welcomeMessage
+    call print
+    mov si, crlfMessage
+    call print
+
+    jmp short $
+
+loadRoot:
+    xor cx, cx
+    xor dx, dx
+    mov ax, 0x0020              
+    mul word [bpb.rootEntries]   
+    div word [bpb.bytesPerSector]
+    xchg ax, cx
+
+    mov al, [bpb.fats]
+    mul word [bpb.sectorsPerFat]
+    add ax, word [bpb.reservedSectors]
+    mov word [dataSector], ax
+    add word [dataSector], cx
+    
+    mov bx, 0x8000
+    call readSectors
+
+  .findKernel:
+    mov cx, word [bpb.rootEntries]
+    mov di, 0x0200
+  .loop:
+    push cx
+    mov cx, 0x000B   
+    mov si, kernelFilename
+    push di
+    rep cmpsb
+    pop di
+    je loadFat
+    pop cx
+    add di, 0x0020
+    loop .loop
+    jmp failure
+
+loadFat:
+
 
     ; Spin
     jmp short $
+
+failure:
+    mov si, failureMessage
+    call print
+    mov ah, 0x00
+    ; Wait for keypress
+    int 0x16
+    ; Warm boot
+    int 0x19          
+
+welcomeMessage:
+    db "Welcome to MOS", 0x00
+loadingKernelMessage:
+    db "Loading kernel", 0x00
+progressMessage:
+    db ".", 0x00
+failureMessage:
+    db "Failed - press any key to reboot", 0x00
+crlfMessage:
+    db 0x0d, 0x0a, 0x00
 
 padding:
     times 510 - ($ - $$) db 0
