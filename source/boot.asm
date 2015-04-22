@@ -64,11 +64,40 @@ resetFloppy:
     ret
 
 readSectors:
+    ; ax = Starting sector
+    ; cx = Number of sectors to read
+    ; es:bx => Buffer to read to
   .start
     mov di, 0x0005
   .sectorLoop
-    pusha
-
+    push ax
+    push bx
+    push cx
+    call convertLbaToChs                    ; convert starting sector to CHS
+    mov ah, 0x02                            ; BIOS read sector
+    mov al, 0x01                            ; read one sector
+    mov ch, byte [absoluteTrack]            ; track
+    mov cl, byte [absoluteSector]           ; sector
+    mov dh, byte [absoluteHead]             ; head
+    mov dl, byte [bpb.drive]                ; drive
+    int 0x13                                ; invoke BIOS
+    jnc .success                            ; test for read error
+    xor ax, ax                              ; BIOS reset disk
+    int 0x13                                ; invoke BIOS
+    dec di                                  ; decrement error counter
+    pop cx
+    pop bx
+    pop ax
+    jnz .sectorLoop                         ; attempt to read again
+    int 0x18
+  .success
+    pop cx
+    pop bx
+    pop ax
+    add bx, word [bpb.bytesPerSector]       ; queue next buffer
+    inc ax                                  ; queue next sector
+    loop .start                             ; read next sector
+    ret
 
 loadRoot:
     mov al, [bpb.fats]
@@ -76,6 +105,43 @@ loadRoot:
     add ax, [bpb.reservedSectors]
     mov bx, 0x8000
     ret
+
+convertChsToLba:
+    ; ax = clustor
+    sub ax, 0x0002                          ; zero base cluster number
+    xor cx, cx
+    mov cl, byte [bpb.sectorsPerCluster]    ; convert byte to word
+    mul cx
+    add ax, word [dataSector]               ; base data sector
+    ret
+
+convertLbaToChs:
+    ; ax = LBA address
+    ; absolute sector = (logical sector / sectors per track) + 1
+    ; absolute head   = (logical sector / sectors per track) MOD number of heads
+    ; absolute track  = logical sector / (sectors per track * number of heads)
+    xor dx, dx                              ; prepare dx:ax for operation
+    div word [bpb.sectorsPerTrack]          ; calculate
+    inc dl                                  ; adjust for sector 0
+    mov byte [absoluteSector], dl
+    xor dx, dx                              ; prepare dx:ax for operation
+    div word [bpb.headsPerCylinder]         ; calculate
+    mov byte [absoluteHead], dl
+    mov byte [absoluteTrack], al
+    ret
+
+absoluteSector:
+    db 0x00
+absoluteHead:
+    db 0x00
+absoluteTrack:
+    db 0x00
+dataSector:
+    dw 0x0000
+cluster:
+    dw 0x0000
+imageName:
+    db "KERNEL  SYS"
 
 start:
     ; Setup Stack
