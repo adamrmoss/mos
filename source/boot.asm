@@ -87,7 +87,7 @@ readSectors:
     pop bx
     pop ax
     jnz .sectorLoop                         ; attempt to read again
-    int 0x18
+    jmp failure
   .success:
     pop cx
     pop bx
@@ -144,7 +144,7 @@ dataSector:
 cluster:
     dw 0x0000
 kernelFilename:
-    db "kernel     "
+    db "KERNEL     "
 
 start:
     ; Setup Stack
@@ -156,17 +156,13 @@ start:
     mov ax, TEXT >> 4
     mov es, ax
  
-    ;call hideCursor
     mov ah, THEME
-    ;call cls
     call setColors
 
     mov si, welcomeMessage
     call print
     mov si, crlfMessage
     call print
-
-    jmp short $
 
 loadRoot:
     xor cx, cx
@@ -182,15 +178,17 @@ loadRoot:
     mov word [dataSector], ax
     add word [dataSector], cx
     
-    mov bx, 0x8000
+    mov bx, BOOT_FAT >> 4
+    mov es, bx
+    xor bx, bx
     call readSectors
 
-  .findKernel:
+findKernel:
     mov cx, word [bpb.rootEntries]
-    mov di, 0x0200
+    xor di, di
   .loop:
     push cx
-    mov cx, 0x000B   
+    mov cx, 0x000b   
     mov si, kernelFilename
     push di
     rep cmpsb
@@ -202,10 +200,58 @@ loadRoot:
     jmp failure
 
 loadFat:
+    mov si, crlfMessage
+    call print
+    mov dx, word [di + 0x001A]
+    mov word [cluster], dx
+    xor ax, ax
+    mov al, byte [bpb.fats]
+    mul word [bpb.sectorsPerFat]   
+    mov cx, ax
+    mov ax, word [bpb.reservedSectors]
+    xor bx, bx
+    call readSectors
+    mov si, crlfMessage
+    call print
+    mov ax, KERNEL >> 4
+    mov es, ax     
+    mov bx, 0x0000 
+    push bx
 
+loadKernel:
+    mov ax, word [cluster]             
+    pop bx                             
+    call convertChsToLba                     
+    xor cx, cx
+    mov cl, byte [bpb.sectorsPerCluster]
+    call readSectors
+    push bx
+    mov ax, word [cluster]
+    mov cx, ax            
+    mov dx, ax            
+    shr dx, 0x0001        
+    add cx, dx            
+    mov bx, 0x0200        
+    add bx, cx            
+    mov dx, word [bx]     
+    test ax, 0x0001
+    jnz .oddCluster
+  .evenCluster:
+    and dx, 0x0fff
+    jmp .done
+  .oddCluster:
+    shr dx, 0x0004
+  .done:
+    mov word [cluster], dx
+    cmp dx, 0x0ff0        
+    jb loadKernel
 
-    ; Spin
-    jmp short $
+done:
+    mov si, crlfMessage
+    call print
+    push word KERNEL >> 4
+    push word 0x0000
+    retf
 
 failure:
     mov si, failureMessage
@@ -219,11 +265,11 @@ failure:
 welcomeMessage:
     db "Welcome to MOS", 0x00
 loadingKernelMessage:
-    db "Loading kernel", 0x00
+    db "Loading", 0x00
 progressMessage:
     db ".", 0x00
 failureMessage:
-    db "Failed - press any key to reboot", 0x00
+    db "Failed", 0x00
 crlfMessage:
     db 0x0d, 0x0a, 0x00
 
